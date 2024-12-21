@@ -206,6 +206,7 @@ const Excel = () => {
           onCompositionEnd={handleCompositionEnd}
           placeholder="이름"
           style={{ marginRight: '10px', padding: '5px' }}
+          maxLength={5}
         />
         <input
           type="text"
@@ -277,6 +278,7 @@ const Excel = () => {
           onChange={handleFileNameChange}
           placeholder="파일명을 입력하세요"
           style={{ marginRight: '10px', padding: '5px' }}
+          maxLength={30}
         />
         <button
           onClick={exportToExcel}
