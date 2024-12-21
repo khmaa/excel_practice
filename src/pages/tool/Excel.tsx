@@ -227,7 +227,7 @@ const Excel = () => {
         />
         <button
           onClick={exportToExcel}
-          disabled={!fileName}
+          disabled={!fileName || tableData.length < 1}
           style={{
             padding: '5px 10px',
             cursor: fileName ? 'pointer' : 'not-allowed',
@@ -235,12 +235,33 @@ const Excel = () => {
         >
           엑셀로 내보내기
         </button>
+        <label
+          htmlFor="file-upload"
+          style={{
+            marginLeft: '10px',
+            padding: '5px 10px',
+            backgroundColor: '#007BFF',
+            color: '#fff',
+            cursor: 'pointer',
+            borderRadius: '4px',
+            display: 'inline-block',
+          }}
+        >
+          엑셀 파일 불러오기
+        </label>
         <input
+          id="file-upload"
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={importFromExcel}
+          style={{ display: 'none' }}
+        />
+        {/* <input
           type="file"
           accept=".xlsx, .xls"
           onChange={importFromExcel}
           style={{ marginLeft: '10px' }}
-        />
+        /> */}
       </div>
 
       {/* Table */}
