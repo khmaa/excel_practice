@@ -44,8 +44,16 @@ const Excel = () => {
         return;
       }
 
+      // Format the third input if it has 8 characters
+      const formattedThird = inputs.third
+        ? `010-${inputs.third.slice(0, 4)}-${inputs.third.slice(4)}`
+        : '';
+
       // Add the new row to the table data
-      setTableData((prevData) => [...prevData, inputs]);
+      setTableData((prevData) => [
+        ...prevData,
+        { first: inputs.first, second: inputs.second, third: formattedThird },
+      ]);
 
       // Clear the inputs
       setInputs({ first: '', second: '', third: '' });
@@ -53,11 +61,11 @@ const Excel = () => {
   };
 
   const handleCompositionStart = () => {
-    setIsComposing(true); // IME 입력 시작
+    setIsComposing(true);
   };
 
   const handleCompositionEnd = () => {
-    setIsComposing(false); // IME 입력 종료
+    setIsComposing(false);
   };
 
   const handleFileNameChange = (e) => {
@@ -67,7 +75,15 @@ const Excel = () => {
   const exportToExcel = () => {
     if (!fileName) return;
 
-    const worksheet = XLSX.utils.json_to_sheet(tableData);
+    // Add row numbers to the exported data
+    const numberedTableData = tableData.map((row, index) => ({
+      번호: index + 1,
+      이름: row.first,
+      주소: row.second,
+      전화번호: row.third,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(numberedTableData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
 
