@@ -163,6 +163,9 @@ const Excel = () => {
       }));
 
       setTableData(formattedData);
+
+      // Set the file name input to the uploaded file's name
+      setFileName(file.name.replace(/\.[^/.]+$/, '')); // Remove the file extension
     };
 
     reader.readAsArrayBuffer(file);
