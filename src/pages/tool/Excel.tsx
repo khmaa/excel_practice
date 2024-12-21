@@ -93,6 +93,31 @@ const Excel = () => {
     setFileName('');
   };
 
+  const importFromExcel = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      // Update table data from imported Excel
+      const formattedData = jsonData.map((row, index) => ({
+        first: row['이름'] || `Row ${index + 1}`,
+        second: row['주소'] || '',
+        third: row['전화번호'] || '',
+      }));
+
+      setTableData(formattedData);
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Excel Table Example</h1>
@@ -153,6 +178,12 @@ const Excel = () => {
         >
           엑셀로 내보내기
         </button>
+        <input
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={importFromExcel}
+          style={{ marginLeft: '10px' }}
+        />
       </div>
 
       {/* Table */}
