@@ -34,7 +34,11 @@ const Excel = () => {
   };
 
   const handleSelectAddress = (data) => {
-    setCalendarLocation(data.address);
+    if (data.query.slice(-1) === '동') {
+      setCalendarLocation(data.sido + ' ' + data.sigungu + ' ' + data.hname);
+    } else {
+      setCalendarLocation(data.sido + ' ' + data.sigungu + ' ' + data.roadname);
+    }
     setOpenPostcode(false);
   };
 
@@ -183,7 +187,7 @@ const Excel = () => {
           style={{
             marginRight: '10px',
             padding: '5px',
-            width: calendarLocation ? '400px' : 'auto',
+            width: calendarLocation ? '200px' : 'auto',
           }}
         />
 
