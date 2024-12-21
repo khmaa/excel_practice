@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import DaumPostcode from 'react-daum-postcode';
 import * as XLSX from 'xlsx';
 
 const Excel = () => {
@@ -6,6 +7,11 @@ const Excel = () => {
   const [tableData, setTableData] = useState([]);
   const [isComposing, setIsComposing] = useState(false); // IME 상태 관리
   const [fileName, setFileName] = useState(''); // File name state
+
+  const [openPostcode, setOpenPostcode] = useState(false);
+
+  const [calendarLocation, setCalendarLocation] = useState('');
+  const locations = { calendarLocation: calendarLocation };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,6 +29,15 @@ const Excel = () => {
     setInputs({ ...inputs, [name]: trimmedValue });
   };
 
+  const handleOpenPostCode = () => {
+    setOpenPostcode((current) => !current);
+  };
+
+  const handleSelectAddress = (data) => {
+    setCalendarLocation(data.address);
+    setOpenPostcode(false);
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       if (isComposing) {
@@ -38,7 +53,7 @@ const Excel = () => {
       }
 
       // Check if any other input is empty
-      if (!inputs.second || !inputs.third) {
+      if (!calendarLocation || !inputs.third) {
         const confirmInput = window.confirm(
           '비어있는 입력란이 있는데 저장하시겠습니까?',
         );
@@ -61,11 +76,16 @@ const Excel = () => {
       // Add the new row to the table data
       setTableData((prevData) => [
         ...prevData,
-        { first: inputs.first, second: inputs.second, third: formattedThird },
+        {
+          first: inputs.first,
+          second: calendarLocation,
+          third: formattedThird,
+        },
       ]);
 
       // Clear the inputs
       setInputs({ first: '', second: '', third: '' });
+      setCalendarLocation('');
     }
   };
 
@@ -147,14 +167,42 @@ const Excel = () => {
         <input
           type="text"
           name="second"
-          value={inputs.second}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          onCompositionStart={handleCompositionStart}
-          onCompositionEnd={handleCompositionEnd}
+          value={calendarLocation}
+          // onChange={handleChange}
+          // onKeyDown={handleKeyDown}
+          // onCompositionStart={handleCompositionStart}
+          // onCompositionEnd={handleCompositionEnd}
+          onClick={handleOpenPostCode}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault(); // 기본 엔터 동작 방지
+              handleOpenPostCode(); // PostCode 열기 동작
+            }
+          }}
           placeholder="주소"
-          style={{ marginRight: '10px', padding: '5px' }}
+          style={{
+            marginRight: '10px',
+            padding: '5px',
+            width: calendarLocation ? '400px' : 'auto',
+          }}
         />
+
+        {!calendarLocation && (
+          <button
+            type="button"
+            onClick={handleOpenPostCode}
+            style={{ marginRight: '20px' }}
+          >
+            {calendarLocation ? calendarLocation : '장소를 검색해주세요'}
+          </button>
+        )}
+        {openPostcode && (
+          <DaumPostcode
+            onComplete={handleSelectAddress} // 값을 선택할 경우 실행되는 이벤트
+            autoClose={false} // 값을 선택할 경우 사용되는 DOM을 제거하여 자동 닫힘 설정
+          />
+        )}
+
         <input
           type="text"
           name="third"
