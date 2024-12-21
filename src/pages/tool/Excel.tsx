@@ -17,7 +17,10 @@ const Excel = () => {
       }
     }
 
-    setInputs({ ...inputs, [name]: value });
+    // Trim spaces for the first input
+    const trimmedValue = name === 'first' ? value.replace(/\s+/g, '') : value;
+
+    setInputs({ ...inputs, [name]: trimmedValue });
   };
 
   const handleKeyDown = (e) => {
@@ -28,8 +31,14 @@ const Excel = () => {
 
       e.preventDefault();
 
-      // Check if any input is empty
-      if (!inputs.first || !inputs.second || !inputs.third) {
+      // Ensure the first input is not empty
+      if (!inputs.first) {
+        alert('이름이 비어있습니다');
+        return;
+      }
+
+      // Check if any other input is empty
+      if (!inputs.second || !inputs.third) {
         const confirmInput = window.confirm(
           '비어있는 입력란이 있는데 저장하시겠습니까?',
         );
