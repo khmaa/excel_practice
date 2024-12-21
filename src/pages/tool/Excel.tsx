@@ -7,26 +7,26 @@ const Excel = () => {
   const [tableData, setTableData] = useState([]);
   const [isComposing, setIsComposing] = useState(false); // IME 상태 관리
   const [fileName, setFileName] = useState(''); // File name state
-
   const [openPostcode, setOpenPostcode] = useState(false);
-
   const [calendarLocation, setCalendarLocation] = useState('');
   const locations = { calendarLocation: calendarLocation };
+  const [selectedRowIndex, setSelectedRowIndex] = useState(null); // 선택된 행의 인덱스
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     // Restrict the third input to numbers only, with a maximum length of 8
     if (name === 'third') {
-      if (!/^[0-9]*$/.test(value) || value.length > 8) {
+      const sanitizedValue = value.replace(/-/g, '').replace(/^010/, ''); // Remove dashes
+      if (!/^[0-9]*$/.test(sanitizedValue) || sanitizedValue.length > 8) {
         return;
       }
+      setInputs({ ...inputs, [name]: sanitizedValue });
+    } else {
+      // Trim spaces for the first input
+      const trimmedValue = name === 'first' ? value.replace(/\s+/g, '') : value;
+      setInputs({ ...inputs, [name]: trimmedValue });
     }
-
-    // Trim spaces for the first input
-    const trimmedValue = name === 'first' ? value.replace(/\s+/g, '') : value;
-
-    setInputs({ ...inputs, [name]: trimmedValue });
   };
 
   const handleOpenPostCode = () => {
@@ -77,15 +77,32 @@ const Excel = () => {
         ? `010-${inputs.third.slice(0, 4)}-${inputs.third.slice(4)}`
         : '';
 
-      // Add the new row to the table data
-      setTableData((prevData) => [
-        ...prevData,
-        {
-          first: inputs.first,
-          second: calendarLocation,
-          third: formattedThird,
-        },
-      ]);
+      // Add or update the row in the table data
+      if (selectedRowIndex !== null) {
+        // Update the existing row
+        setTableData((prevData) =>
+          prevData.map((row, index) =>
+            index === selectedRowIndex
+              ? {
+                  first: inputs.first,
+                  second: calendarLocation,
+                  third: formattedThird,
+                }
+              : row,
+          ),
+        );
+        setSelectedRowIndex(null); // Clear the selected row
+      } else {
+        // Add a new row
+        setTableData((prevData) => [
+          ...prevData,
+          {
+            first: inputs.first,
+            second: calendarLocation,
+            third: formattedThird,
+          },
+        ]);
+      }
 
       // Clear the inputs
       setInputs({ first: '', second: '', third: '' });
@@ -151,6 +168,23 @@ const Excel = () => {
     reader.readAsArrayBuffer(file);
   };
 
+  const handleRowClick = (index) => {
+    const row = tableData[index];
+    setInputs({
+      first: row.first,
+      second: '',
+      third: row.third.replace(/-/g, ''),
+    });
+    setCalendarLocation(row.second);
+    setSelectedRowIndex(index);
+  };
+
+  const resetInputs = () => {
+    setInputs({ first: '', second: '', third: '' });
+    setCalendarLocation('');
+    setSelectedRowIndex(null);
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Excel Table Example</h1>
@@ -172,15 +206,11 @@ const Excel = () => {
           type="text"
           name="second"
           value={calendarLocation}
-          // onChange={handleChange}
-          // onKeyDown={handleKeyDown}
-          // onCompositionStart={handleCompositionStart}
-          // onCompositionEnd={handleCompositionEnd}
           onClick={handleOpenPostCode}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              e.preventDefault(); // 기본 엔터 동작 방지
-              handleOpenPostCode(); // PostCode 열기 동작
+              e.preventDefault();
+              handleOpenPostCode();
             }
           }}
           placeholder="주소"
@@ -222,6 +252,20 @@ const Excel = () => {
 
       {/* File Name Input */}
       <div style={{ marginBottom: '20px', textAlign: 'right' }}>
+        <button
+          onClick={resetInputs}
+          style={{
+            marginRight: '10px',
+            padding: '5px 10px',
+            backgroundColor: '#FF5733',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          입력창 초기화
+        </button>
         <input
           type="text"
           value={fileName}
@@ -260,12 +304,6 @@ const Excel = () => {
           onChange={importFromExcel}
           style={{ display: 'none' }}
         />
-        {/* <input
-          type="file"
-          accept=".xlsx, .xls"
-          onChange={importFromExcel}
-          style={{ marginLeft: '10px' }}
-        /> */}
       </div>
 
       {/* Table */}
@@ -280,7 +318,15 @@ const Excel = () => {
         </thead>
         <tbody>
           {tableData.map((row, index) => (
-            <tr key={index}>
+            <tr
+              key={index}
+              onClick={() => handleRowClick(index)}
+              style={{
+                backgroundColor:
+                  selectedRowIndex === index ? '#d4e6fb' : 'white',
+                cursor: 'pointer',
+              }}
+            >
               <td style={{ textAlign: 'center' }}>{index + 1}</td>
               <td>{row.first}</td>
               <td>{row.second}</td>
