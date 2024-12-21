@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import DaumPostcode from 'react-daum-postcode';
 import * as XLSX from 'xlsx';
 
@@ -11,6 +11,9 @@ const Excel = () => {
   const [calendarLocation, setCalendarLocation] = useState('');
   const locations = { calendarLocation: calendarLocation };
   const [selectedRowIndex, setSelectedRowIndex] = useState(null); // 선택된 행의 인덱스
+
+  const inputNameRef = useRef(null);
+  const inputPhoneRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,6 +39,10 @@ const Excel = () => {
   const handleSelectAddress = (data) => {
     if (data.query.slice(-1) === '동') {
       setCalendarLocation(data.sido + ' ' + data.sigungu + ' ' + data.hname);
+    } else if (data.query.slice(-1) === '구') {
+      setCalendarLocation(data.sido + ' ' + data.sigungu);
+    } else if (data.query.slice(-1) === '시') {
+      setCalendarLocation(data.sido);
     } else {
       setCalendarLocation(data.sido + ' ' + data.sigungu + ' ' + data.roadname);
     }
@@ -107,6 +114,7 @@ const Excel = () => {
       // Clear the inputs
       setInputs({ first: '', second: '', third: '' });
       setCalendarLocation('');
+      if (inputNameRef && inputNameRef.current) inputNameRef.current.focus();
     }
   };
 
@@ -190,6 +198,12 @@ const Excel = () => {
     }
   };
 
+  useEffect(() => {
+    if (calendarLocation) {
+      if (inputPhoneRef && inputPhoneRef.current) inputPhoneRef.current.focus();
+    }
+  }, [calendarLocation]);
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Excel Table Example</h1>
@@ -199,6 +213,7 @@ const Excel = () => {
         <input
           type="text"
           name="first"
+          ref={inputNameRef}
           value={inputs.first}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
@@ -246,6 +261,7 @@ const Excel = () => {
         <input
           type="text"
           name="third"
+          ref={inputPhoneRef}
           value={inputs.third}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
