@@ -183,9 +183,11 @@ const Excel = () => {
   };
 
   const resetInputs = () => {
-    setInputs({ first: '', second: '', third: '' });
-    setCalendarLocation('');
-    setSelectedRowIndex(null);
+    if (confirm('입력창을 초기화 하시겠습니까?')) {
+      setInputs({ first: '', second: '', third: '' });
+      setCalendarLocation('');
+      setSelectedRowIndex(null);
+    }
   };
 
   return (
