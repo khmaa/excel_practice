@@ -152,6 +152,31 @@ const Excel = () => {
     setFileName(e.target.value);
   };
 
+  const appendFromExcel = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      // Append new rows to the existing table data
+      const formattedData = jsonData.map((row, index) => ({
+        first: row['이름'] || `Row ${index + 1}`,
+        second: row['주소'] || '',
+        third: row['전화번호'] || '',
+      }));
+
+      setTableData((prevData) => [...prevData, ...formattedData]);
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
   const exportToExcel = () => {
     if (!fileName) return;
 
@@ -323,6 +348,27 @@ const Excel = () => {
         </div>
 
         <div style={{ marginBottom: '20px', textAlign: 'right' }}>
+          <label
+            htmlFor="file-append"
+            style={{
+              marginRight: '10px',
+              padding: '5px 10px',
+              backgroundColor: '#28A745',
+              color: '#fff',
+              cursor: 'pointer',
+              borderRadius: '4px',
+              display: 'inline-block',
+            }}
+          >
+            엑셀 이어 붙이기
+          </label>
+          <input
+            id="file-append"
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={appendFromExcel}
+            style={{ display: 'none' }}
+          />
           <button
             onClick={resetInputs}
             style={{
