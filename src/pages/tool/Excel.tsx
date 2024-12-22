@@ -38,7 +38,13 @@ const Excel = () => {
 
   const handleSelectAddress = (data) => {
     if (data.query.slice(-1) === '동') {
-      setCalendarLocation(data.sido + ' ' + data.sigungu + ' ' + data.hname);
+      setCalendarLocation(
+        data.sido +
+          ' ' +
+          data.sigungu +
+          ' ' +
+          (data.hname ? data.hname : data.query),
+      );
     } else if (data.query.slice(-1) === '구') {
       setCalendarLocation(data.sido + ' ' + data.sigungu);
     } else if (data.query.slice(-1) === '시') {
