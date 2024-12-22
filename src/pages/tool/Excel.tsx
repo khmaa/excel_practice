@@ -270,6 +270,10 @@ const Excel = () => {
             type="text"
             name="second"
             value={calendarLocation}
+            onFocus={(e) => {
+              e.preventDefault();
+              handleOpenPostCode();
+            }}
             onClick={handleOpenPostCode}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
