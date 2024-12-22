@@ -34,6 +34,12 @@ const Excel = () => {
 
   const handleOpenPostCode = () => {
     setOpenPostcode((current) => !current);
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth',
+      });
+    });
   };
 
   const handleSelectAddress = (data) => {
