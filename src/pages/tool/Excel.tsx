@@ -387,6 +387,12 @@ const Excel = () => {
             type="text"
             value={fileName}
             onChange={handleFileNameChange}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                exportToExcel();
+              }
+            }}
             placeholder="파일명을 입력하세요"
             style={{ marginRight: '10px', padding: '5px' }}
             maxLength={30}
