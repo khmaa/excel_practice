@@ -124,6 +124,13 @@ const Excel = () => {
       setInputs({ first: '', second: '', third: '' });
       setCalendarLocation('');
       if (inputNameRef && inputNameRef.current) inputNameRef.current.focus();
+
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth',
+        });
+      });
     }
   };
 
@@ -216,129 +223,6 @@ const Excel = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Excel Table Example</h1>
-
-      {/* Input Fields */}
-      <div style={{ marginBottom: '20px' }}>
-        <input
-          type="text"
-          name="first"
-          ref={inputNameRef}
-          value={inputs.first}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          onCompositionStart={handleCompositionStart}
-          onCompositionEnd={handleCompositionEnd}
-          placeholder="이름"
-          style={{ marginRight: '10px', padding: '5px' }}
-          maxLength={5}
-        />
-        <input
-          type="text"
-          name="second"
-          value={calendarLocation}
-          onClick={handleOpenPostCode}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleOpenPostCode();
-            }
-          }}
-          placeholder="주소"
-          style={{
-            marginRight: '10px',
-            padding: '5px',
-            width: calendarLocation ? '200px' : 'auto',
-          }}
-        />
-
-        {!calendarLocation && (
-          <button
-            type="button"
-            onClick={handleOpenPostCode}
-            style={{ marginRight: '20px' }}
-          >
-            {calendarLocation ? calendarLocation : '장소를 검색해주세요'}
-          </button>
-        )}
-        {openPostcode && (
-          <DaumPostcode
-            onComplete={handleSelectAddress} // 값을 선택할 경우 실행되는 이벤트
-            autoClose={false} // 값을 선택할 경우 사용되는 DOM을 제거하여 자동 닫힘 설정
-          />
-        )}
-
-        <input
-          type="text"
-          name="third"
-          ref={inputPhoneRef}
-          value={inputs.third}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          onCompositionStart={handleCompositionStart}
-          onCompositionEnd={handleCompositionEnd}
-          placeholder="전화번호"
-          style={{ padding: '5px' }}
-        />
-      </div>
-
-      {/* File Name Input */}
-      <div style={{ marginBottom: '20px', textAlign: 'right' }}>
-        <button
-          onClick={resetInputs}
-          style={{
-            marginRight: '10px',
-            padding: '5px 10px',
-            backgroundColor: '#FF5733',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
-          입력창 초기화
-        </button>
-        <input
-          type="text"
-          value={fileName}
-          onChange={handleFileNameChange}
-          placeholder="파일명을 입력하세요"
-          style={{ marginRight: '10px', padding: '5px' }}
-          maxLength={30}
-        />
-        <button
-          onClick={exportToExcel}
-          disabled={!fileName || tableData.length < 1}
-          style={{
-            padding: '5px 10px',
-            cursor: fileName ? 'pointer' : 'not-allowed',
-          }}
-        >
-          엑셀로 내보내기
-        </button>
-        <label
-          htmlFor="file-upload"
-          style={{
-            marginLeft: '10px',
-            padding: '5px 10px',
-            backgroundColor: '#007BFF',
-            color: '#fff',
-            cursor: 'pointer',
-            borderRadius: '4px',
-            display: 'inline-block',
-          }}
-        >
-          엑셀 파일 불러오기
-        </label>
-        <input
-          id="file-upload"
-          type="file"
-          accept=".xlsx, .xls"
-          onChange={importFromExcel}
-          style={{ display: 'none' }}
-        />
-      </div>
-
-      {/* Table */}
       <table border="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
@@ -367,6 +251,123 @@ const Excel = () => {
           ))}
         </tbody>
       </table>
+      <div style={{ marginTop: '30px', marginBottom: '30px' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <input
+            type="text"
+            name="first"
+            ref={inputNameRef}
+            value={inputs.first}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
+            placeholder="이름"
+            style={{ marginRight: '10px', padding: '5px' }}
+            maxLength={5}
+          />
+          <input
+            type="text"
+            name="second"
+            value={calendarLocation}
+            onClick={handleOpenPostCode}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleOpenPostCode();
+              }
+            }}
+            placeholder="주소"
+            style={{
+              marginRight: '10px',
+              padding: '5px',
+              width: calendarLocation ? '200px' : 'auto',
+            }}
+          />
+
+          {!calendarLocation && (
+            <button
+              type="button"
+              onClick={handleOpenPostCode}
+              style={{ marginRight: '20px' }}
+            >
+              {calendarLocation ? calendarLocation : '장소를 검색해주세요'}
+            </button>
+          )}
+          {openPostcode && (
+            <DaumPostcode onComplete={handleSelectAddress} autoClose={false} />
+          )}
+
+          <input
+            type="text"
+            name="third"
+            ref={inputPhoneRef}
+            value={inputs.third}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
+            placeholder="전화번호"
+            style={{ padding: '5px' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '20px', textAlign: 'right' }}>
+          <button
+            onClick={resetInputs}
+            style={{
+              marginRight: '10px',
+              padding: '5px 10px',
+              backgroundColor: '#FF5733',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            입력창 초기화
+          </button>
+          <input
+            type="text"
+            value={fileName}
+            onChange={handleFileNameChange}
+            placeholder="파일명을 입력하세요"
+            style={{ marginRight: '10px', padding: '5px' }}
+            maxLength={30}
+          />
+          <button
+            onClick={exportToExcel}
+            disabled={!fileName || tableData.length < 1}
+            style={{
+              padding: '5px 10px',
+              cursor: fileName ? 'pointer' : 'not-allowed',
+            }}
+          >
+            엑셀로 내보내기
+          </button>
+          <label
+            htmlFor="file-upload"
+            style={{
+              marginLeft: '10px',
+              padding: '5px 10px',
+              backgroundColor: '#007BFF',
+              color: '#fff',
+              cursor: 'pointer',
+              borderRadius: '4px',
+              display: 'inline-block',
+            }}
+          >
+            엑셀 파일 불러오기
+          </label>
+          <input
+            id="file-upload"
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={importFromExcel}
+            style={{ display: 'none' }}
+          />
+        </div>
+      </div>
     </div>
   );
 };
