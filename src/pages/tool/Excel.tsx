@@ -38,8 +38,14 @@ const Excel = () => {
 
   const handleSelectAddress = (data) => {
     if (data.query.slice(-1) === '동') {
+      let searchText = '';
+      if (data.query.includes(' ')) {
+        searchText = data.query.slice(data.query.lastIndexOf(' ') + 1);
+      } else {
+        searchText = data.query;
+      }
       setCalendarLocation(
-        data.sido + ' ' + data.sigungu + ' ' + data.query,
+        data.sido + ' ' + data.sigungu + ' ' + searchText,
         // (data.hname ? data.hname : data.query),
       );
     } else if (data.query.slice(-1) === '구') {
