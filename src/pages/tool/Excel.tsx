@@ -20,7 +20,7 @@ const Excel = () => {
 
     // Restrict the third input to numbers only, with a maximum length of 8
     if (name === 'third') {
-      const sanitizedValue = value.replace(/-/g, '').replace(/^010/, ''); // Remove dashes
+      const sanitizedValue = value.replace(/-/g, ''); // Remove dashes
       if (!/^[0-9]*$/.test(sanitizedValue) || sanitizedValue.length > 8) {
         return;
       }
@@ -193,7 +193,7 @@ const Excel = () => {
     setInputs({
       first: row.first,
       second: '',
-      third: row.third.replace(/-/g, ''),
+      third: row.third.replace(/-/g, '').replace(/^010/, ''),
     });
     setCalendarLocation(row.second);
     setSelectedRowIndex(index);
