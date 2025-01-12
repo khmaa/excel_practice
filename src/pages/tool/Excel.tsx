@@ -267,7 +267,7 @@ const Excel = () => {
           {tableData.map((row, index) => (
             <tr
               key={index}
-              onClick={() => handleRowClick(index)}
+              onDoubleClick={() => handleRowClick(index)}
               style={{
                 backgroundColor:
                   selectedRowIndex === index ? '#d4e6fb' : 'white',
