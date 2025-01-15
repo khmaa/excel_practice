@@ -43,6 +43,7 @@ const Excel = () => {
   };
 
   const handleSelectAddress = (data) => {
+    debugger;
     if (data.query.slice(-1) === '동') {
       let searchText = '';
       if (data.query.includes(' ')) {
@@ -57,7 +58,7 @@ const Excel = () => {
     } else if (data.query.slice(-1) === '구') {
       setCalendarLocation(data.sido + ' ' + data.sigungu);
     } else if (data.query.slice(-1) === '시') {
-      setCalendarLocation(data.sido);
+      setCalendarLocation(data.sido + ' ' + data.sigungu);
     } else {
       setCalendarLocation(data.sido + ' ' + data.sigungu + ' ' + data.roadname);
     }
