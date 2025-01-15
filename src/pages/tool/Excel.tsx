@@ -58,7 +58,8 @@ const Excel = () => {
     } else if (data.query.slice(-1) === '구') {
       setCalendarLocation(data.sido + ' ' + data.sigungu);
     } else if (data.query.slice(-1) === '시') {
-      setCalendarLocation(data.sido + ' ' + data.sigungu);
+      if (data.query === '서울시') setCalendarLocation(data.query);
+      else setCalendarLocation(data.sido + ' ' + data.query);
     } else {
       setCalendarLocation(data.sido + ' ' + data.sigungu + ' ' + data.roadname);
     }
