@@ -286,6 +286,24 @@ const Excel = () => {
   }, [calendarLocation]);
 
   useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (tableData.length > 0) {
+        const confirmationMessage =
+          '저장되지 않은 데이터가 있습니다. 진행하시겠습니까?';
+        e.preventDefault();
+        e.returnValue = confirmationMessage; // 일부 브라우저에서 동작
+        return confirmationMessage;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [tableData]);
+
+  useEffect(() => {
     if (typeof window !== 'undefined' && localStorage.getItem('excelAppData')) {
       setIsDisabledTempButton(true);
     } else {
