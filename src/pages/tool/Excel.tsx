@@ -12,6 +12,8 @@ const Excel = () => {
   const locations = { calendarLocation: calendarLocation };
   const [selectedRowIndex, setSelectedRowIndex] = useState(null); // 선택된 행의 인덱스
 
+  const [isDisabledTempButton, setIsDisabledTempButton] = useState(false);
+
   const inputNameRef = useRef(null);
   const inputPhoneRef = useRef(null);
 
@@ -43,7 +45,6 @@ const Excel = () => {
   };
 
   const handleSelectAddress = (data) => {
-    debugger;
     if (data.query.slice(-1) === '동') {
       let searchText = '';
       if (data.query.includes(' ')) {
@@ -239,6 +240,37 @@ const Excel = () => {
     setSelectedRowIndex(index);
   };
 
+  const handleSaveToLocalStorage = () => {
+    const dataToSave = {
+      inputs,
+      tableData,
+      calendarLocation,
+      fileName,
+    };
+    localStorage.setItem('excelAppData', JSON.stringify(dataToSave));
+    alert('현재 화면 정보가 임시저장되었습니다.');
+  };
+
+  const handleLoadFromLocalStorage = () => {
+    const savedData = localStorage.getItem('excelAppData');
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+
+      setInputs(parsedData.inputs || { first: '', second: '', third: '' });
+      setTableData(parsedData.tableData || []);
+      setCalendarLocation(parsedData.calendarLocation || '');
+      setFileName(parsedData.fileName || '');
+
+      // 성공적으로 불러온 후 localStorage에서 데이터 삭제
+      localStorage.removeItem('excelAppData');
+      alert(
+        '임시 저장된 데이터를 불러왔습니다. 불러온 데이터는 삭제되었습니다.',
+      );
+    } else {
+      alert('불러올 데이터가 없습니다.');
+    }
+  };
+
   const resetInputs = () => {
     if (confirm('입력창을 초기화 하시겠습니까?')) {
       setInputs({ first: '', second: '', third: '' });
@@ -253,9 +285,53 @@ const Excel = () => {
     }
   }, [calendarLocation]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem('excelAppData')) {
+      setIsDisabledTempButton(true);
+    } else {
+      setIsDisabledTempButton(false);
+    }
+  }, []);
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Excel Table Example</h1>
+      <div>
+        <button
+          onClick={handleLoadFromLocalStorage}
+          disabled={tableData.length > 0}
+          style={{
+            position: 'absolute',
+            top: '55px',
+            right: '130px',
+            padding: '10px 15px',
+            backgroundColor: isDisabledTempButton ? '#4CAF50' : '#ccc',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: isDisabledTempButton ? 'pointer' : 'not-allowed',
+          }}
+        >
+          불러오기
+        </button>
+
+        <button
+          onClick={handleSaveToLocalStorage}
+          style={{
+            position: 'absolute',
+            top: '55px',
+            right: '10px',
+            padding: '10px 15px',
+            backgroundColor: '#FFA500',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+          }}
+        >
+          임시저장
+        </button>
+      </div>
       <table border="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
