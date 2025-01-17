@@ -67,6 +67,39 @@ const Excel = () => {
     setOpenPostcode(false);
   };
 
+  const checkForDuplicates = () => {
+    const duplicates = []; // 중복 그룹 저장
+
+    // 이미 처리한 행을 기록
+    const processedIndices = new Set();
+
+    tableData.forEach((row, index) => {
+      if (processedIndices.has(index)) return; // 이미 처리된 인덱스는 건너뜀
+
+      const duplicateIndices = tableData
+        .map((item, i) =>
+          i !== index && row.first === item.first && row.third === item.third
+            ? i
+            : null,
+        )
+        .filter((i) => i !== null);
+
+      if (duplicateIndices.length > 0) {
+        const group = [index + 1, ...duplicateIndices.map((i) => i + 1)]; // 1-based index
+        duplicates.push(group);
+        group.forEach((i) => processedIndices.add(i - 1)); // 처리된 인덱스로 기록
+      }
+    });
+
+    if (duplicates.length > 0) {
+      alert(
+        `중복된 값들: ${duplicates.map((group) => `[${group.join(', ')}]`).join(' , ')}`,
+      );
+    } else {
+      alert('중복된 값이 없습니다.');
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       if (isComposing) {
@@ -338,6 +371,22 @@ const Excel = () => {
     <div style={{ padding: '20px' }}>
       <h1>Excel Table Example</h1>
       <div>
+        <button
+          onClick={checkForDuplicates}
+          style={{
+            position: 'absolute',
+            top: '55px',
+            right: '380px',
+            padding: '10px 15px',
+            backgroundColor: '#FF4500',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+          }}
+        >
+          중복 확인
+        </button>
         <button
           onClick={handleLoadFromLocalStorage}
           disabled={tableData.length > 0}
