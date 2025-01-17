@@ -81,6 +81,12 @@ const Excel = () => {
         return;
       }
 
+      const koreanRegex = /^[가-힣]+$/; // 완성된 한글만 허용
+      if (!koreanRegex.test(inputs.first)) {
+        alert('이름 입력란에 완성되지 않은 한글이 포함되어 있습니다.');
+        return;
+      }
+
       // Check if any other input is empty
       if (!calendarLocation || !inputs.third) {
         const confirmInput = window.confirm(
