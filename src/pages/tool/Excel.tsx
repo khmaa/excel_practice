@@ -241,14 +241,16 @@ const Excel = () => {
   };
 
   const handleSaveToLocalStorage = () => {
-    const dataToSave = {
-      inputs,
-      tableData,
-      calendarLocation,
-      fileName,
-    };
-    localStorage.setItem('excelAppData', JSON.stringify(dataToSave));
-    alert('현재 화면 정보가 임시저장되었습니다.');
+    if (confirm('임시 저장하시겠습니까?')) {
+      const dataToSave = {
+        inputs,
+        tableData,
+        calendarLocation,
+        fileName,
+      };
+      localStorage.setItem('excelAppData', JSON.stringify(dataToSave));
+      alert('현재 화면 정보가 임시저장되었습니다.');
+    }
   };
 
   const handleLoadFromLocalStorage = () => {
@@ -284,6 +286,21 @@ const Excel = () => {
       if (inputPhoneRef && inputPhoneRef.current) inputPhoneRef.current.focus();
     }
   }, [calendarLocation]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault(); // Prevent the default browser save action
+        handleSaveToLocalStorage(); // Call the save function
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [inputs, tableData, calendarLocation, fileName]);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
