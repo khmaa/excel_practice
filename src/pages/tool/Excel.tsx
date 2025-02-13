@@ -365,6 +365,23 @@ const Excel = () => {
     } else {
       setIsDisabledTempButton(false);
     }
+
+    const handleBackButton = (event) => {
+      event.preventDefault(); // 기본 동작 방지
+      const confirmLeave = window.confirm('뒤로 가시겠습니까?');
+      if (confirmLeave) {
+        window.history.back(); // 사용자가 확인을 누르면 실제로 뒤로 가기 실행
+      } else {
+        window.history.pushState(null, '', window.location.href); // 뒤로가기 방지
+      }
+    };
+
+    window.history.pushState(null, '', window.location.href); // 히스토리 스택에 현재 상태 추가
+    window.addEventListener('popstate', handleBackButton);
+
+    return () => {
+      window.removeEventListener('popstate', handleBackButton);
+    };
   }, []);
 
   return (
