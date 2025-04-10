@@ -9,7 +9,6 @@ const Excel = () => {
   const [fileName, setFileName] = useState(''); // File name state
   const [openPostcode, setOpenPostcode] = useState(false);
   const [calendarLocation, setCalendarLocation] = useState('');
-  const locations = { calendarLocation: calendarLocation };
   const [selectedRowIndex, setSelectedRowIndex] = useState(null); // 선택된 행의 인덱스
 
   const [isDisabledTempButton, setIsDisabledTempButton] = useState(false);
@@ -17,7 +16,7 @@ const Excel = () => {
   const inputNameRef = useRef(null);
   const inputPhoneRef = useRef(null);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     // Restrict the third input to numbers only, with a maximum length of 8
@@ -44,7 +43,8 @@ const Excel = () => {
     });
   };
 
-  const handleSelectAddress = (data) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSelectAddress = (data: any) => {
     if (data.query.slice(-1) === '동') {
       let searchText = '';
       if (data.query.includes(' ')) {
@@ -180,14 +180,6 @@ const Excel = () => {
         });
       });
     }
-  };
-
-  const handleCompositionStart = () => {
-    setIsComposing(true);
-  };
-
-  const handleCompositionEnd = () => {
-    setIsComposing(false);
   };
 
   const handleFileNameChange = (e) => {
@@ -439,7 +431,7 @@ const Excel = () => {
           임시저장
         </button>
       </div>
-      <table border="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <table border={1} style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
             <th>#</th>
@@ -476,8 +468,6 @@ const Excel = () => {
             value={inputs.first}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            onCompositionStart={handleCompositionStart}
-            onCompositionEnd={handleCompositionEnd}
             placeholder="이름"
             style={{ marginRight: '10px', padding: '5px' }}
             maxLength={5}
@@ -525,8 +515,6 @@ const Excel = () => {
             value={inputs.third}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            onCompositionStart={handleCompositionStart}
-            onCompositionEnd={handleCompositionEnd}
             placeholder="전화번호"
             style={{ padding: '5px' }}
           />
