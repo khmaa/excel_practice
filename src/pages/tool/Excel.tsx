@@ -503,8 +503,8 @@ const Excel = () => {
               padding: '5px',
               width: calendarLocation ? '200px' : 'auto',
             }}
+            readOnly={true}
           />
-
           {!calendarLocation && (
             <button
               type="button"
