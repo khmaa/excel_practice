@@ -5,11 +5,10 @@ import * as XLSX from 'xlsx';
 const Excel = () => {
   const [inputs, setInputs] = useState({ first: '', second: '', third: '' });
   const [tableData, setTableData] = useState([]);
-  const [isComposing, setIsComposing] = useState(false); // IME 상태 관리
-  const [fileName, setFileName] = useState(''); // File name state
+  const [fileName, setFileName] = useState('');
   const [openPostcode, setOpenPostcode] = useState(false);
   const [calendarLocation, setCalendarLocation] = useState('');
-  const [selectedRowIndex, setSelectedRowIndex] = useState(null); // 선택된 행의 인덱스
+  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   const [isDisabledTempButton, setIsDisabledTempButton] = useState(false);
 
@@ -19,15 +18,13 @@ const Excel = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    // Restrict the third input to numbers only, with a maximum length of 8
     if (name === 'third') {
-      const sanitizedValue = value.replace(/-/g, ''); // Remove dashes
+      const sanitizedValue = value.replace(/-/g, '');
       if (!/^[0-9]*$/.test(sanitizedValue) || sanitizedValue.length > 8) {
         return;
       }
       setInputs({ ...inputs, [name]: sanitizedValue });
     } else {
-      // Trim spaces for the first input
       const trimmedValue = name === 'first' ? value.replace(/\s+/g, '') : value;
       setInputs({ ...inputs, [name]: trimmedValue });
     }
@@ -43,7 +40,6 @@ const Excel = () => {
     });
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSelectAddress = (data: any) => {
     if (data.query.slice(-1) === '동') {
       let searchText = '';
@@ -52,10 +48,7 @@ const Excel = () => {
       } else {
         searchText = data.query;
       }
-      setCalendarLocation(
-        data.sido + ' ' + data.sigungu + ' ' + searchText,
-        // (data.hname ? data.hname : data.query),
-      );
+      setCalendarLocation(data.sido + ' ' + data.sigungu + ' ' + searchText);
     } else if (data.query.slice(-1) === '구') {
       setCalendarLocation(data.sido + ' ' + data.sigungu);
     } else if (data.query.slice(-1) === '시') {
@@ -68,13 +61,12 @@ const Excel = () => {
   };
 
   const checkForDuplicates = () => {
-    const duplicates = []; // 중복 그룹 저장
+    const duplicates = [];
 
-    // 이미 처리한 행을 기록
     const processedIndices = new Set();
 
     tableData.forEach((row, index) => {
-      if (processedIndices.has(index)) return; // 이미 처리된 인덱스는 건너뜀
+      if (processedIndices.has(index)) return;
 
       const duplicateIndices = tableData
         .map((item, i) =>
@@ -85,9 +77,9 @@ const Excel = () => {
         .filter((i) => i !== null);
 
       if (duplicateIndices.length > 0) {
-        const group = [index + 1, ...duplicateIndices.map((i) => i + 1)]; // 1-based index
+        const group = [index + 1, ...duplicateIndices.map((i) => i + 1)];
         duplicates.push(group);
-        group.forEach((i) => processedIndices.add(i - 1)); // 처리된 인덱스로 기록
+        group.forEach((i) => processedIndices.add(i - 1));
       }
     });
 
@@ -95,55 +87,71 @@ const Excel = () => {
       alert(
         `중복된 값들: ${duplicates.map((group) => `[${group.join(', ')}]`).join(' , ')}`,
       );
+      if (confirm('값을 하나만 남기고 삭제하시겠습니까?')) {
+        removeDuplicate(duplicates);
+      } else {
+        return;
+      }
     } else {
       alert('중복된 값이 없습니다.');
     }
   };
 
+  const removeDuplicate = (duplicates) => {
+    const indicesToRemove = new Set();
+
+    duplicates.forEach((group) => {
+      const [, ...rest] = group;
+      rest.forEach((i) => indicesToRemove.add(i - 1));
+    });
+
+    const sortedIndices = Array.from(indicesToRemove).sort((a, b) => b - a);
+
+    setTableData((prevData) => {
+      const newData = [...prevData];
+      sortedIndices.forEach((index) => {
+        newData.splice(index, 1);
+      });
+      return newData;
+    });
+
+    alert('중복 항목 중 첫 번째 항목을 제외하고 모두 삭제했습니다.');
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      if (isComposing) {
-        return; // IME 입력 중에는 Enter 키 동작을 무시
-      }
-
       e.preventDefault();
 
-      // Ensure the first input is not empty
       if (!inputs.first) {
         alert('이름이 비어있습니다');
         return;
       }
 
-      const koreanRegex = /^[가-힣]+$/; // 완성된 한글만 허용
+      const koreanRegex = /^[가-힣]+$/;
       if (!koreanRegex.test(inputs.first)) {
         alert('이름 입력란에 완성되지 않은 한글이 포함되어 있습니다.');
         return;
       }
 
-      // Check if any other input is empty
       if (!calendarLocation || !inputs.third) {
         const confirmInput = window.confirm(
           '비어있는 입력란이 있는데 저장하시겠습니까?',
         );
         if (!confirmInput) {
-          return; // Exit if user cancels
+          return;
         }
       }
 
-      // Ensure the third input has exactly 8 characters if it has any value
       if (inputs.third && inputs.third.length !== 8) {
         alert('전화번호 입력란은 비워두거나 숫자 8개 입력해야 합니다.');
         return;
       }
 
-      // Format the third input if it has 8 characters
       const formattedThird = inputs.third
         ? `010-${inputs.third.slice(0, 4)}-${inputs.third.slice(4)}`
         : '';
 
-      // Add or update the row in the table data
       if (selectedRowIndex !== null) {
-        // Update the existing row
         setTableData((prevData) =>
           prevData.map((row, index) =>
             index === selectedRowIndex
@@ -155,9 +163,8 @@ const Excel = () => {
               : row,
           ),
         );
-        setSelectedRowIndex(null); // Clear the selected row
+        setSelectedRowIndex(null);
       } else {
-        // Add a new row
         setTableData((prevData) => [
           ...prevData,
           {
@@ -168,7 +175,6 @@ const Excel = () => {
         ]);
       }
 
-      // Clear the inputs
       setInputs({ first: '', second: '', third: '' });
       setCalendarLocation('');
       if (inputNameRef && inputNameRef.current) inputNameRef.current.focus();
@@ -198,7 +204,6 @@ const Excel = () => {
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      // Append new rows to the existing table data
       const formattedData = jsonData.map((row, index) => ({
         first: row['이름'] || `Row ${index + 1}`,
         second: row['주소'] || '',
@@ -214,7 +219,6 @@ const Excel = () => {
   const exportToExcel = () => {
     if (!fileName) return;
 
-    // Add row numbers to the exported data
     const numberedTableData = tableData.map((row, index) => ({
       번호: index + 1,
       이름: row.first,
@@ -228,7 +232,6 @@ const Excel = () => {
 
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
 
-    // Clear the file name input
     setFileName('');
   };
 
@@ -244,7 +247,6 @@ const Excel = () => {
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      // Update table data from imported Excel
       const formattedData = jsonData.map((row, index) => ({
         first: row['이름'] || `Row ${index + 1}`,
         second: row['주소'] || '',
@@ -253,8 +255,7 @@ const Excel = () => {
 
       setTableData(formattedData);
 
-      // Set the file name input to the uploaded file's name
-      setFileName(file.name.replace(/\.[^/.]+$/, '')); // Remove the file extension
+      setFileName(file.name.replace(/\.[^/.]+$/, ''));
     };
 
     reader.readAsArrayBuffer(file);
@@ -294,7 +295,6 @@ const Excel = () => {
       setCalendarLocation(parsedData.calendarLocation || '');
       setFileName(parsedData.fileName || '');
 
-      // 성공적으로 불러온 후 localStorage에서 데이터 삭제
       localStorage.removeItem('excelAppData');
       alert(
         '임시 저장된 데이터를 불러왔습니다. 불러온 데이터는 삭제되었습니다.',
@@ -321,8 +321,8 @@ const Excel = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault(); // Prevent the default browser save action
-        handleSaveToLocalStorage(); // Call the save function
+        e.preventDefault();
+        handleSaveToLocalStorage();
       }
     };
 
@@ -339,7 +339,7 @@ const Excel = () => {
         const confirmationMessage =
           '저장되지 않은 데이터가 있습니다. 진행하시겠습니까?';
         e.preventDefault();
-        e.returnValue = confirmationMessage; // 일부 브라우저에서 동작
+        e.returnValue = confirmationMessage;
         return confirmationMessage;
       }
     };
@@ -359,16 +359,16 @@ const Excel = () => {
     }
 
     const handleBackButton = (event) => {
-      event.preventDefault(); // 기본 동작 방지
+      event.preventDefault();
       const confirmLeave = window.confirm('뒤로 가시겠습니까?');
       if (confirmLeave) {
-        window.history.back(); // 사용자가 확인을 누르면 실제로 뒤로 가기 실행
+        window.history.back();
       } else {
-        window.history.pushState(null, '', window.location.href); // 뒤로가기 방지
+        window.history.pushState(null, '', window.location.href);
       }
     };
 
-    window.history.pushState(null, '', window.location.href); // 히스토리 스택에 현재 상태 추가
+    window.history.pushState(null, '', window.location.href);
     window.addEventListener('popstate', handleBackButton);
 
     return () => {
